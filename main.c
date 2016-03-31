@@ -20,8 +20,8 @@ use the rand function to add in randomness
 */
 
 #include <myLib.h>
-#include <imageFiles/deepSpace.h>
-#include <imageFiles/gameOver.h>
+#include <deepSpace.h>
+#include <gameOver.h>
 
 
 

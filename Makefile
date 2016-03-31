@@ -7,16 +7,16 @@
 # The name of your desired GBA game
 # This should be a just a name i.e MyFirstGBAGame
 # No SPACES AFTER THE NAME.
-PROGNAME =
+PROGNAME = Galaga
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES =
+OFILES = main.o deepSpace.o gameOver.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES =
+HFILES = myLib.h deepSpace.h gameOver.h
 
 ################################################################################
 # These are various settings used to make the GBA toolchain work
@@ -32,7 +32,7 @@ LDFLAGS = -L $(TOOLDIR)/lib \
 		  -L $(ARMLIB) \
 		  --script $(ARMLIB)/arm-gba.ld
 CDEBUG   = -g -DDEBUG
-CRELEASE = -O2 
+CRELEASE = -O2
 CC       = $(TOOLDIR)/bin/arm-thumb-eabi-gcc
 AS       = $(TOOLDIR)/bin/arm-thumb-eabi-as
 LD       = $(TOOLDIR)/bin/arm-thumb-eabi-ld
@@ -65,8 +65,8 @@ crt0.o : $(ARMLIB)/crt0.s
 	@echo "[COMPILE] Compiling $<"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-%.o : %.s                                                                        
-	@echo "[ASSEMBLE] Assembling $<"                                               
+%.o : %.s
+	@echo "[ASSEMBLE] Assembling $<"
 	@$(AS) $< -o $@ -mthumb -mthumb-interwork
 
 clean :
@@ -84,4 +84,3 @@ med : $(PROGNAME).gba
 	@mednafen $(PROGNAME).gba > /dev/null 2>&1
 
 -include $(CFILES:%.c=%.d)
-
