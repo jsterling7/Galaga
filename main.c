@@ -19,13 +19,19 @@ Left | Left Arrow Right | Right Arrow Up | Up Arrow Down | Down Arrow
 use the rand function to add in randomness
 */
 
+#include <myLib.h>
+#include <imageFiles/deepSpace.h>
+#include <imageFiles/gameOver.h>
 
-typedef unsigned short u16;
-typedef unsigned int u32;
+
+
 
 
 int main() {
 
+    void drawImage3(int r, int c, int width, int height, const u16* image);
+
+    drawImage3(0, 0, 240, 160, &deepSpace);
 }
 
 
@@ -39,6 +45,13 @@ int main() {
    * @param image Pointer to the first element of the image.
    */
 void drawImage3(int r, int c, int width, int height, const u16* image) {
+    for (int row = 0; r < height; r++) {
+        DMA[DMA_CHANNEL_3].src = &image;
+        DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET(r + row, col, 240)];
+        DMA[DMA_CHANNEL_3].cnt = width | DMA_SOURCE_INCREMENT| DMA_DESTINATION_INCREMENT |
+            DMA_ON;
+    }
+
 
 
 }
