@@ -11,7 +11,7 @@ PROGNAME = Galaga
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES = main.o deepSpace.o gameOver.o
+OFILES = main.o deepSpace.o gameOver.o myLib.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
