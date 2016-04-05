@@ -1,3 +1,5 @@
+
+
 typedef unsigned short u16;
 typedef unsigned int u32;
 
@@ -8,6 +10,7 @@ typedef unsigned int u32;
 #define COLOR(r, g, b) (r | g << 5 | b << 10)
 
 #define BLUE COLOR(0,0,31)
+#define GREEN COLOR(0, 31, 0)
 
 
 typedef struct {
@@ -16,7 +19,7 @@ typedef struct {
     volatile u32 cnt;
 } DMA_CONTROLLER;
 
-#define OFFSET(row, column, width) (r * width + c)
+#define OFFSET(row, column, width) (row * width + column)
 
 #define DMA ((volatile DMA_CONTROLLER *) 0x40000B0)
 #define DMA_CHANNEL_3 3
@@ -32,7 +35,7 @@ typedef struct {
 
 extern unsigned short *videoBuffer;
 
-
+//
 void drawImage3(int r, int c, int width, int height, const u16* image);
 void drawRectangle(int r, int c, int width, int height, u16 color);
 void fillScreen(volatile u16 color);

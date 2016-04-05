@@ -25,9 +25,22 @@ use the rand function to add in randomness
 
 
 
+
+
 int main() {
   REG_DISPCTL = MODE3 | BG2_ENABLE;
-//  drawImage3(10, 10, 200, 120, deepSpace);
-  drawRectangle(10, 10, 200, 120, BLUE);
-  //fillScreen(BLUE);
+  // Fill the background with the image for the start screen
+  //drawImage3(0, 0, STARTSCREEN_WIDTH, STARTSCREEN_HEIGHT, startScreen);
+  // Press enter to start
+  // Sceen that says, "LEVEL 1"
+
+
+  // Fill the background with a picture of a galaxy
+  drawImage3(0, 0, DEEPSPACE_WIDTH, DEEPSPACE_HEIGHT, deepSpace);
+  // drawImage3(0, 0, SMUGCAT_WIDTH, SMUGCAT_HEIGHT, data);
+  while(1);
+  return 0;
+  //fillScreen(GREEN);
+  // drawRect(10, 10, 100, 50, BLUE);
+  // drawRectangle(10, 10, 100, 50, BLUE);
 }
