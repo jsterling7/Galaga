@@ -63,10 +63,15 @@ extern const unsigned char fontdata_6x8[12288];
 // Prototypes
 
 void drawImage3(int r, int c, int width, int height, const u16* image);
+void drawImage3_2(int r, int c, int width, int height, const u16* image, int cutoff);
 void waitForVblank();
 void wait(int time);
 void drawChar(int row, int col, char ch, u16 color);
 void drawString(int row, int col, char *str, u16 color);
 void setPixel(int r, int c, unsigned short color);
-void drawRectangle(int r, int c, int width, int height, u16 color);
+void shoot(int row, int column, u16 color);
+
+
+
+// void drawRectangle(int r, int c, int width, int height, u16 color);
 void fillScreen(volatile u16 color);

@@ -15,16 +15,26 @@ unsigned short *videoBuffer = (unsigned short *)0x6000000;
 
 void drawImage3(int r, int c, int width, int height, const u16* image) {
     for (int row = 0; row < height; row++) {
-      DMA[DMA_CHANNEL_3].src = image + 240 * row;
+      DMA[DMA_CHANNEL_3].src = image + width * row;
       DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET((row + r), c, 240)];
       DMA[DMA_CHANNEL_3].cnt = width | DMA_DESTINATION_INCREMENT | DMA_SOURCE_INCREMENT | DMA_ON;
     }
 }
 
+void drawImage3_2(int r, int c, int width, int height, const u16* image, int cutoff) {
+    for (int row = 0; row < height; row++) {
+      DMA[DMA_CHANNEL_3].src = image + width * (row + r) + c;
+      DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET((row + r), c, 240)];
+      DMA[DMA_CHANNEL_3].cnt = cutoff | DMA_DESTINATION_INCREMENT | DMA_SOURCE_INCREMENT | DMA_ON;
+    }
+}
+
+
 void waitForVblank() {
 	while(SCANLINECOUNTER > 160);
 	while(SCANLINECOUNTER < 160);
 }
+
 
 void wait(int time) {
 	volatile int t = 0;
@@ -54,29 +64,21 @@ void setPixel(int r, int c, unsigned short color) {
 	videoBuffer[OFFSET(r, c, 240)] = color;
 }
 
-int getNum(int num) {
-  if (num == 0) {
-    return 1;
+void shoot(int row, int column, volatile u16 color) {
+  for (int r = 0; r < 5; r++) {
+    DMA[DMA_CHANNEL_3].src = &color;
+    DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET((r + row), column, 240)];
+    DMA[DMA_CHANNEL_3].cnt = 3 | DMA_ON | DMA_SOURCE_FIXED;
   }
-  int count = 0;
-  int divide = 2;
-  while (divide >= 1) {
-    divide = num / (10^count);
-    if (divide >= 1) {
-      count++;
-    }
-  }
-  return count;
 }
 
-
-void drawRectangle(int row, int column, int width, int height, u16 color) {
-  for (int r = 0; r < height; r++) {
-      DMA[DMA_CHANNEL_3].src = &color;
-      DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET((r + row), column, 240)];
-      DMA[DMA_CHANNEL_3].cnt = width | DMA_ON | DMA_SOURCE_FIXED;
-    }
-}
+// void drawRectangle(int row, int column, int width, int height, u16 color) {
+//   for (int r = 0; r < height; r++) {
+//       DMA[DMA_CHANNEL_3].src = &color;
+//       DMA[DMA_CHANNEL_3].dst = &videoBuffer[OFFSET((r + row), column, 240)];
+//       DMA[DMA_CHANNEL_3].cnt = width | DMA_ON | DMA_SOURCE_FIXED;
+//     }
+// }
 
 void fillScreen(volatile u16 color) {
   DMA[DMA_CHANNEL_3].src = &color;
