@@ -17,6 +17,7 @@ typedef unsigned int u32;
 #define RED COLOR(31, 0, 0)
 #define BLACK COLOR(0, 0, 0)
 #define WHITE COLOR(31, 31, 31)
+#define CYAN COLOR(0, 31, 31)
 
 
 // Buttons
@@ -70,6 +71,19 @@ void drawChar(int row, int col, char ch, u16 color);
 void drawString(int row, int col, char *str, u16 color);
 void setPixel(int r, int c, unsigned short color);
 void shoot(int row, int column, u16 color);
+void isLeftButton();
+void isRightButton();
+void isUpButton();
+void isSelectButton();
+void isStartButton();
+void shootBullet();
+void moveShip();
+void updateScore();
+void updateArray(u32 array[7]);
+int checkArray(u32 array[7]);
+int isLevel1Complete();
+void alienShoot();
+
 
 
 

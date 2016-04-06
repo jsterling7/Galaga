@@ -72,6 +72,7 @@ void shoot(int row, int column, volatile u16 color) {
   }
 }
 
+
 // void drawRectangle(int row, int column, int width, int height, u16 color) {
 //   for (int r = 0; r < height; r++) {
 //       DMA[DMA_CHANNEL_3].src = &color;
