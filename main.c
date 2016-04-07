@@ -28,6 +28,7 @@ use the rand function to add in randomness
 #include "alien_1.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "ailen2.h"
 
 enum gameState {
   STARTSCREEN,
@@ -81,16 +82,19 @@ u32 two = 0;
 u32 hit = 0;
 u32 theFirstCurrentPosition;
 u32 leave = 0;
+u32 first = 1;
 u32 levelsCompleted = 0;
+//to skip to level 2
+// u32 levelsCompleted = 1;
 
 u32 lowerbound;
 u32 upperbound;
 u32 currentP;
 enum gameState currentState = STARTSCREEN;
+// enum gameState currentState = LEVEL_2_INIT;
 
 int main() {
   REG_DISPCTL = MODE3 | BG2_ENABLE;
-//  srand((unsigned) time(&t));
 
 
   while(1) {
@@ -159,24 +163,25 @@ int main() {
         break;
       case LEVEL_2_INIT:
         setLevel();
-        for (int i = 0; i < 7; i++) {
-          row1[i] = 1;
-          row2[i] = 1;
-          row2Kill[i] = 1;
-          row1Kill[i] = 1;
+        if (first) {
+          for (int i = 0; i < 7; i++) {
+            row1[i] = 1;
+            row2[i] = 1;
+            row2Kill[i] = 1;
+            row1Kill[i] = 1;
+            first = 0;
+          }
         }
-        // updateArray(row2);
-        // updateArray(row1Kill);
-        // updateArray(row2Kill);
         for (int height = 5; height <= 25; height += 20) {
           for (int width = 20; width <= 200; width += 30) {
             if (height == 5) {
               if (row1[width/30] == 1) {
-                    drawImage3(height, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+                    drawImage3(height, width, AILEN2_WIDTH, AILEN2_HEIGHT - 5, ailen2);
                 }
             } else {
               if (row2[width/30] == 1) {
                     drawImage3(height, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+
 
               }
             }
@@ -189,7 +194,7 @@ int main() {
         isLeftButton();
         isRightButton();
         //isUpButton();
-        alienShoot();
+        alienShoot2();
         if (isLevel2Complete()) {
           currentState = LEVEL_2_SCORE;
         }
@@ -215,7 +220,11 @@ int main() {
           currentState = GAMEOVERDEAD;
           wait(50);
         } else {
-          currentState = LEVEL_1_INIT;
+          if (levelsCompleted == 0) {
+            currentState = LEVEL_1_INIT;
+          } else if (levelsCompleted == 1) {
+            currentState = LEVEL_2_INIT;
+          }
           currentShipPosition = 105;
         }
         break;
@@ -225,6 +234,7 @@ int main() {
         wait(100);
       case FINALSCORE:
         fillScreen(BLACK);
+        theScore = theScore + (numberOfLives * 100);
         sprintf(currentScore, "FINAL SCORE: %d", theScore);
         drawString(70, 63, currentScore, WHITE);
         sprintf(currentScore, "LEVELS COMPLETED: %d", levelsCompleted);
@@ -272,7 +282,11 @@ void isRightButton() {
 
 void isUpButton() {
   if (KEY_DOWN_NOW(BUTTON_UP) && upB == 0) {
-    shootBullet();
+    if (levelsCompleted == 0) {
+      shootBullet();
+    } else if (levelsCompleted == 1) {
+        shootBullet2();
+    }
     upB = 1;
   }
   if (!KEY_DOWN_NOW(BUTTON_UP)) {upB = 0;}
@@ -347,6 +361,101 @@ void alienShoot() {
   }
 
   drawImage3_2(135, alienPosition1, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+
+}
+
+void alienShoot2() {
+  u32 randomAlien = (rand() % 6);
+  u32 randomAlien2 = (rand() % 6);
+  u32 randomAlien3 = (rand() % 6);
+  u32 randomAlien4 = (rand() % 6);
+  u32 chance = (rand() % 10);
+  u32 alienPosition1 = randomAlien * 30 + 20 + 9;
+  u32 alienPosition2 = randomAlien2 * 30 + 20 + 9;
+  u32 alienPosition3 = randomAlien3 * 30 + 20 + 9;
+  u32 alienPosition4 = randomAlien4 * 30 + 20;
+  isUpButton();
+  isLeftButton();
+  isRightButton();
+  u32 yes1 = 0;
+  u32 yes2 = 0;
+  u32 yes3 = 0;
+  u32 yes4 = 0;
+  if ((row2[randomAlien] == 1 || row2[randomAlien2] == 1 || row2[randomAlien3] == 1 || row1[randomAlien4]) && chance > 8) {
+    for (int height = 45; height < 139; height += 5) {
+      isUpButton();
+      isLeftButton();
+      isRightButton();
+      if (row2[randomAlien]) {
+        yes1 = 1;
+        if (height > 114 && alienPosition1 > currentShipPosition && alienPosition1 < currentShipPosition + 20) {
+          currentState = HIT;
+        }
+      }
+      if (row2[randomAlien2]) {
+        yes2 = 1;
+        if (height > 114 && alienPosition2 > currentShipPosition && alienPosition2 < currentShipPosition + 20) {
+          currentState = HIT;
+        }
+      }
+      if (row2[randomAlien3]) {
+        yes3 = 1;
+        if (height > 114 && alienPosition3 > currentShipPosition && alienPosition3 < currentShipPosition + 20) {
+          currentState = HIT;
+        }
+      }
+      if (row1[randomAlien4] && height == 45 && row2[randomAlien4] == 0) {
+        yes4 = 1;
+      }
+      if (row2[randomAlien] == 1 || yes1) {
+        drawImage3_2(height - 5, alienPosition1, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+        shoot(height, alienPosition1, whiteColor);
+      }
+      if (row2[randomAlien2] == 1 || yes2) {
+        drawImage3_2(height - 5, alienPosition2, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+        shoot(height, alienPosition2, whiteColor);
+      }
+      if (row2[randomAlien3] == 1 || yes3) {
+        drawImage3_2(height - 5, alienPosition3, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+        shoot(height, alienPosition3, whiteColor);
+      }
+      if (yes4 && row1[randomAlien4]) {
+        drawImage3_2(5, alienPosition4, DEEPSPACE_WIDTH, 20, (deepSpace), 20);
+        drawImage3_2(height - 40, alienPosition4, DEEPSPACE_WIDTH, 20, (deepSpace), 20);
+        drawImage3(height - 20, alienPosition4, 20, 20, (ailen2));
+        wait(2);
+        if ((height +20  > 114) && ((alienPosition4 > currentShipPosition && alienPosition4 < currentShipPosition + 20) ||
+            (alienPosition4 + 20 < currentShipPosition + 20 && alienPosition4 + 20 > currentShipPosition))) {
+          currentState = HIT;
+        }
+      } else if (yes4 && row1[randomAlien4] == 0) {
+          drawImage3_2(height - 40, alienPosition4, DEEPSPACE_WIDTH, 20, (deepSpace), 20);
+      }
+      isLeftButton();
+      isRightButton();
+      wait(3);
+    }
+  }
+  if (yes1) {
+    drawImage3_2(135, alienPosition1, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+  }
+  if (yes2) {
+      drawImage3_2(135, alienPosition2, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+  }
+  if (yes3) {
+    drawImage3_2(135, alienPosition3, DEEPSPACE_WIDTH, 5, (deepSpace), 3);
+  }
+  if (yes4 && row1[randomAlien4]) {
+      drawImage3_2(117, alienPosition4, DEEPSPACE_WIDTH, 20, (deepSpace), 20);
+      drawImage3(5, alienPosition4, 20, 20, (ailen2));
+  }
+  drawImage3_2(114, currentShipPosition - 10, DEEPSPACE_WIDTH, (DEEPSPACE_HEIGHT - 134), (deepSpace), 45);
+  drawImage3(114, currentShipPosition, SHIP_1_WIDTH, SHIP_1_HEIGHT, ship_1);
+
+  yes1 = 0;
+  yes2 = 0;
+  yes3 = 0;
+  yes4 = 0;
 
 }
 
@@ -435,6 +544,93 @@ void shootBullet() {
       hit = 0;
       updateScore();
   }
+
+
+  void shootBullet2() {
+      theFirstCurrentPosition = *sp;
+      if (theFirstCurrentPosition > 200) {
+        theFirstCurrentPosition = 200;
+      }
+      if (theFirstCurrentPosition < 10) {
+        theFirstCurrentPosition = 10;
+      }
+      int ailenP = theFirstCurrentPosition / 30;
+      ailenP = ailenP * 30 - 10 + 30;
+      int ailenP2 = ailenP + 30;
+      for (int i = 0; i < 8; i++) {
+        lowerbound = (i * 30) + 20;
+        upperbound = (i * 30) + 40;
+        currentP = theFirstCurrentPosition + 11;
+        if (currentP > lowerbound && currentP < upperbound) {
+          hit = 1;
+          if (row2[i] == 0 && row1[i] == 1) {
+            row1[i] = 0;
+            one = 1;
+            theScore += 10;
+          } else if (row2[i] == 1){
+            row2[i] = 0;
+            firstHit = 30;
+            two = 2;
+            theScore += 10;
+          }
+        }
+      }
+      for(int height = 104; height > firstHit; height -= 5) {
+        waitForVblank();
+        if (hit) {
+            if (height < 45) {
+              drawImage3_2(height + 5, ailenP, DEEPSPACE_WIDTH, 10, deepSpace, 30);
+            } else {
+              drawImage3_2(height + 5, theFirstCurrentPosition + 11, DEEPSPACE_WIDTH, 5, deepSpace, 3);
+            }
+
+        } else {
+            drawImage3_2(height + 5, theFirstCurrentPosition + 11, DEEPSPACE_WIDTH, 5, deepSpace, 3);
+        }
+        for (int height2 = 5; height2 <= 25; height2 += 20) {
+          for (int width = ailenP; width < ailenP2; width += 30) {
+            if (height2 == 5) {
+              if (row1[width/30] == 0) {
+                if (height > 25 && row1Kill[width/30] == 1) {
+                    drawImage3(height2, width, AILEN2_WIDTH, AILEN2_HEIGHT - 5, ailen2);
+
+                }
+              } else {
+                drawImage3(height2, width, AILEN2_WIDTH, AILEN2_HEIGHT - 5, ailen2);
+              }
+            } else {
+              if (row2[width/30] == 0) {
+                if (height > 45 && row2Kill[width/30] == 1) {
+                    drawImage3(height2, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+
+                }
+              } else {
+                drawImage3(height2, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+              }
+            }
+          }
+        }
+        shoot(height, theFirstCurrentPosition + 11, whiteColor);
+        isLeftButton();
+        isRightButton();
+        wait(1);
+      }
+        if (one) {
+          row1Kill[ailenP/30] = 0;
+          one = 0;
+          drawImage3_2(0, theFirstCurrentPosition - 3, DEEPSPACE_WIDTH, 25, (deepSpace), 28);
+        } else if (two) {
+            row2Kill[ailenP/30] = 0;
+            two = 0;
+            drawImage3_2(23, theFirstCurrentPosition - 3, DEEPSPACE_WIDTH, 25, (deepSpace), 28);
+        } else {
+            drawImage3_2(0, theFirstCurrentPosition + 11, DEEPSPACE_WIDTH, 10, (deepSpace), 5);
+        }
+        bullet = 0;
+        firstHit = 0;
+        hit = 0;
+        updateScore();
+    }
 
   int checkArray(u32 array[]) {
     for (int i = 0; i < 8; i++) {

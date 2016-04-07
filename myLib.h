@@ -84,6 +84,8 @@ int isLevel1Complete();
 void alienShoot();
 void setLevel();
 int isLevel2Complete();
+void alienShoot2();
+void shootBullet2();
 
 
 
