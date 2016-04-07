@@ -31,18 +31,19 @@ use the rand function to add in randomness
 
 enum gameState {
   STARTSCREEN,
+  INSTRUCTIONS,
   LEVEL_1,
   LEVEL_1_INIT,
   LEVEL_1_TEXT,
   LEVEL_1_SCORE,
-  // LEVEL_1,
   LEVEL_2_TEXT,
-  // LEVEL_2,
-  // LEVEL_3_TEXT,
-  // LEVEL_3,
+  LEVEL_2_INIT,
+  LEVEL_2,
+  LEVEL_2_SCORE,
   GAMEOVERDEAD,
   FINALSCORE,
   HIT,
+  FINISH,
 };
 
 time_t t;
@@ -63,6 +64,11 @@ u16 whiteColor = WHITE;
 char levelText1[] = "LEVEL 1";
 char levelText2[] = "LEVEL 2";
 char levelComplete1[] = "LEVEL 1 COMPLETE";
+char levelComplete2[] = "LEVEL 2 COMPLETE";
+char instruction1[] = "MOVE with the LEFT and RIGHT arrows";
+char instruction2[] = "SHOOT with the UP arrow";
+char finishGame[] = "THE END";
+char author[] = "CREATED BY: Joshua Sterling";
 char currentScore[100];
 char test[100];
 u32 row1[7] = {1,1,1,1,1,1,1};
@@ -95,21 +101,22 @@ int main() {
         drawImage3(0, 0, STARTSCREEN_WIDTH, STARTSCREEN_HEIGHT, startScreen);
         isStartButton();
         break;
+      case INSTRUCTIONS:
+        fillScreen(BLACK);
+        drawString(58, 15, instruction1, CYAN);
+        drawString(73, 55, instruction2, CYAN);
+        wait(75);
+        currentState = LEVEL_1_TEXT;
+        break;
       case LEVEL_1_TEXT:
         fillScreen(BLACK);
         drawString(73, 110, levelText1, BLUE);
         // print LEVEL 1 to the screen
-        wait(50);
+        wait(80);
         currentState = LEVEL_1_INIT;
         break;
       case LEVEL_1_INIT:
-        sprintf(currentScore, "SCORE: %d", theScore);
-        drawImage3(0, 0, DEEPSPACE_WIDTH, DEEPSPACE_HEIGHT,deepSpace);
-        drawString(150, 5, currentScore, WHITE);
-        drawImage3(114, currentShipPosition, SHIP_1_WIDTH, SHIP_1_HEIGHT, ship_1);
-        for (int width = 235 - (15 * numberOfLives); width < 235; width += 15) {
-            drawImage3(140, width, SHIP_1_LIFE_WIDTH, SHIP_1_LIFE_HEIGHT, ship_1_life);
-        }
+        setLevel();
         for (int height = 5; height <= 25; height += 20){
           for (int width = 20; width <= 200; width += 30) {
             if (height == 5) {
@@ -138,7 +145,7 @@ int main() {
         break;
       case LEVEL_1_SCORE:
         fillScreen(BLACK);
-        drawString(63, 90, levelComplete1, CYAN);
+        drawString(63, 78, levelComplete1, CYAN);
         drawString(73, 90, currentScore, CYAN);
         wait(100);
         currentState = LEVEL_2_TEXT;
@@ -147,8 +154,60 @@ int main() {
       case LEVEL_2_TEXT:
         fillScreen(BLACK);
         drawString(73, 110, levelText2, BLUE);
-        wait(50);
-        currentState = LEVEL_2_TEXT;
+        wait(80);
+        currentState = LEVEL_2_INIT;
+        break;
+      case LEVEL_2_INIT:
+        setLevel();
+        for (int i = 0; i < 7; i++) {
+          row1[i] = 1;
+          row2[i] = 1;
+          row2Kill[i] = 1;
+          row1Kill[i] = 1;
+        }
+        // updateArray(row2);
+        // updateArray(row1Kill);
+        // updateArray(row2Kill);
+        for (int height = 5; height <= 25; height += 20) {
+          for (int width = 20; width <= 200; width += 30) {
+            if (height == 5) {
+              if (row1[width/30] == 1) {
+                    drawImage3(height, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+                }
+            } else {
+              if (row2[width/30] == 1) {
+                    drawImage3(height, width, ALIEN_1_WIDTH, ALIEN_1_HEIGHT - 5, alien_1);
+
+              }
+            }
+          }
+        }
+        currentState = LEVEL_2;
+        break;
+      case LEVEL_2:
+        isSelectButton();
+        isLeftButton();
+        isRightButton();
+        //isUpButton();
+        alienShoot();
+        if (isLevel2Complete()) {
+          currentState = LEVEL_2_SCORE;
+        }
+        break;
+      case LEVEL_2_SCORE:
+        fillScreen(BLACK);
+        drawString(63, 78, levelComplete2, CYAN);
+        drawString(73, 90, currentScore, CYAN);
+        wait(100);
+        currentState = FINISH;
+        levelsCompleted++;
+        break;
+      case FINISH:
+        fillScreen(BLACK);
+        drawString(53, 98, finishGame, CYAN);
+        drawString(73, 35, author, CYAN);
+        wait(250);
+        currentState = FINALSCORE;
         break;
       case HIT:
         numberOfLives = numberOfLives - 1;
@@ -167,9 +226,9 @@ int main() {
       case FINALSCORE:
         fillScreen(BLACK);
         sprintf(currentScore, "FINAL SCORE: %d", theScore);
-        drawString(70, 85, currentScore, WHITE);
+        drawString(70, 63, currentScore, WHITE);
         sprintf(currentScore, "LEVELS COMPLETED: %d", levelsCompleted);
-        drawString(60, 85, currentScore, WHITE);
+        drawString(60, 63, currentScore, WHITE);
         wait(300);
         leave = 1;
         break;
@@ -182,6 +241,17 @@ int main() {
   return 0;
 }
 
+
+void setLevel() {
+  currentShipPosition = 105;
+  sprintf(currentScore, "SCORE: %d", theScore);
+  drawImage3(0, 0, DEEPSPACE_WIDTH, DEEPSPACE_HEIGHT,deepSpace);
+  drawString(150, 5, currentScore, WHITE);
+  drawImage3(114, currentShipPosition, SHIP_1_WIDTH, SHIP_1_HEIGHT, ship_1);
+  for (int width = 235 - (15 * numberOfLives); width < 235; width += 15) {
+      drawImage3(140, width, SHIP_1_LIFE_WIDTH, SHIP_1_LIFE_HEIGHT, ship_1_life);
+  }
+}
 void isLeftButton() {
   if (KEY_DOWN_NOW(BUTTON_LEFT) && leftB == 0) {
     currentShipPosition -= 10;
@@ -213,20 +283,24 @@ void isSelectButton() {
     theScore = 0;
     currentShipPosition = 105;
     numberOfLives = 3;
-    updateArray(row1);
-    updateArray(row2);
-    updateArray(row1Kill);
-    updateArray(row2Kill);
+    for (int i = 0; i < 7; i++) {
+      row1[i] = 1;
+      row2[i] = 1;
+      row2Kill[i] = 1;
+      row1Kill[i] = 1;
+    }
     currentState = STARTSCREEN;
     selectB = 1;
   }
   if (!KEY_DOWN_NOW(BUTTON_SELECT)) {selectB = 0;}
 }
 
+
+
 void isStartButton() {
   drawImage3(0, 0, STARTSCREEN_WIDTH, STARTSCREEN_HEIGHT, startScreen);
   if (KEY_DOWN_NOW(BUTTON_START) && startB == 0) {
-    currentState = LEVEL_1_TEXT;
+    currentState = INSTRUCTIONS;
     startB = 1;
   }
   if (!KEY_DOWN_NOW(BUTTON_START)) {startB = 0;}
@@ -361,13 +435,8 @@ void shootBullet() {
       hit = 0;
       updateScore();
   }
-  void updateArray(u32 array[7]) {
-    for (int i = 0; i < 8; i++) {
-      array[i] = 1;
-    }
-  }
 
-  int checkArray(u32 array[7]) {
+  int checkArray(u32 array[]) {
     for (int i = 0; i < 8; i++) {
       if (array[i] == 1) {
         return 0;
@@ -377,6 +446,13 @@ void shootBullet() {
   }
 
   int isLevel1Complete() {
+    if (checkArray(row1) && checkArray(row2)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  int isLevel2Complete() {
     if (checkArray(row1) && checkArray(row2)) {
       return 1;
     }

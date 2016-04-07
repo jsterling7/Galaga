@@ -79,10 +79,11 @@ void isStartButton();
 void shootBullet();
 void moveShip();
 void updateScore();
-void updateArray(u32 array[7]);
-int checkArray(u32 array[7]);
+int checkArray(u32 array[]);
 int isLevel1Complete();
 void alienShoot();
+void setLevel();
+int isLevel2Complete();
 
 
 
